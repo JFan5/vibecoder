@@ -49,6 +49,11 @@ class Config:
         default_factory=lambda: int(os.getenv("VIBECODER_CLAUDE_MAX_TOKENS", "4096"))
     )
 
+    # Use Claude Code CLI instead of API (default: True)
+    use_claude_code: bool = field(
+        default_factory=lambda: os.getenv("VIBECODER_USE_CLAUDE_CODE", "true").lower() == "true"
+    )
+
     # Logging
     log_level: str = field(
         default_factory=lambda: os.getenv("VIBECODER_LOG_LEVEL", "INFO")

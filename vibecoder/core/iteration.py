@@ -3,11 +3,13 @@
 import asyncio
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
-from ..ai.base import AIResponse, FileOperation
+from ..ai.base import AIProvider, AIResponse, FileOperation
 from ..ai.claude import ClaudeProvider
+from ..ai.claude_code import ClaudeCodeProvider
 from ..ai.prompts import SystemPrompts, TOOL_DEFINITIONS
+from ..config import config
 from ..storage.database import get_db
 from ..storage.logger import logger
 from ..verification.feedback import FeedbackGenerator, Feedback
@@ -41,18 +43,28 @@ class IterationManager:
     def __init__(
         self,
         task: Task,
-        ai_provider: Optional[ClaudeProvider] = None,
+        ai_provider: Optional[AIProvider] = None,
         permission_system: Optional[PermissionSystem] = None,
     ) -> None:
         """Initialize the iteration manager.
 
         Args:
             task: The task to iterate on
-            ai_provider: AI provider to use
+            ai_provider: AI provider to use (defaults based on config)
             permission_system: Permission system for approvals
         """
         self.task = task
-        self.ai = ai_provider or ClaudeProvider()
+
+        # Use Claude Code CLI by default, or API if configured
+        if ai_provider:
+            self.ai = ai_provider
+        elif config.use_claude_code:
+            self.ai = ClaudeCodeProvider(working_directory=task.working_directory)
+            logger.info("Using Claude Code CLI as AI provider", task_id=task.id)
+        else:
+            self.ai = ClaudeProvider()
+            logger.info("Using Claude API as AI provider", task_id=task.id)
+
         self.permissions = permission_system or PermissionSystem()
         self.db = get_db()
         self.feedback_generator = FeedbackGenerator()
@@ -120,8 +132,12 @@ class IterationManager:
                 verification_passed=False,
             )
 
-        # Apply file operations
-        files_modified = await self._apply_file_operations(ai_response.file_operations)
+        # Apply file operations (only for API provider, Claude Code handles files directly)
+        if isinstance(self.ai, ClaudeCodeProvider):
+            # Claude Code already modified files, try to detect what changed
+            files_modified = self._detect_modified_files()
+        else:
+            files_modified = await self._apply_file_operations(ai_response.file_operations)
 
         # Update task artifacts
         for file_path in files_modified:
@@ -310,3 +326,41 @@ class IterationManager:
                 "content": msg["content"],
             })
         return messages
+
+    def _detect_modified_files(self) -> list[str]:
+        """Detect files that were modified by Claude Code.
+
+        Since Claude Code modifies files directly, we scan the working directory
+        for recently modified files.
+
+        Returns:
+            List of file paths that were modified
+        """
+        import time
+
+        working_dir = Path(self.task.working_directory)
+        if not working_dir.exists():
+            return []
+
+        modified = []
+        # Consider files modified in the last 60 seconds as part of this iteration
+        cutoff_time = time.time() - 60
+
+        try:
+            for file_path in working_dir.rglob("*"):
+                if file_path.is_file():
+                    # Skip hidden files and common non-source files
+                    if any(part.startswith(".") for part in file_path.parts):
+                        continue
+                    if file_path.suffix in (".pyc", ".pyo", ".so", ".o"):
+                        continue
+
+                    if file_path.stat().st_mtime > cutoff_time:
+                        modified.append(str(file_path))
+        except Exception as e:
+            logger.warning(
+                f"Error detecting modified files: {e}",
+                task_id=self.task.id,
+            )
+
+        return modified

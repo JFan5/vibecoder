@@ -16,7 +16,7 @@ requirements:
 
 verification_commands:
   - "python hello.py"
-  - "python -c \"from hello import greet; assert greet('World') == 'Hello, World!'\""
+  - "python -c 'from hello import greet; assert greet(\"World\") == \"Hello, World!\"'"
 
 working_directory: "/tmp/vibecoder-test"
 
