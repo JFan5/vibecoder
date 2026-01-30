@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeCoder Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VibeCoder</h1>
+            <div class="status-bar">
+                <span id="queue-status" class="status-badge">--</span>
+                <span class="status-info">
+                    <span id="pending-count">0</span> pending |
+                    <span id="running-count">0</span> running |
+                    <span id="completed-count">0</span> completed |
+                    <span id="failed-count">0</span> failed
+                </span>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="tasks">Tasks</button>
+            <button class="tab" data-tab="approvals">Approvals</button>
+            <button class="tab" data-tab="logs">Logs</button>
+        </nav>
+
+        <main>
+            <!-- Tasks Tab -->
+            <section id="tasks-tab" class="tab-content active">
+                <div class="toolbar">
+                    <button id="create-task-btn" class="btn btn-primary">+ New Task</button>
+                    <button id="refresh-tasks-btn" class="btn">Refresh</button>
+                    <select id="task-filter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="running">Running</option>
+                        <option value="completed">Completed</option>
+                        <option value="failed">Failed</option>
+                        <option value="needs_approval">Needs Approval</option>
+                    </select>
+                </div>
+
+                <div id="tasks-list" class="tasks-list">
+                    <!-- Tasks will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Approvals Tab -->
+            <section id="approvals-tab" class="tab-content">
+                <div class="toolbar">
+                    <button id="refresh-approvals-btn" class="btn">Refresh</button>
+                </div>
+
+                <div id="approvals-list" class="approvals-list">
+                    <!-- Approvals will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Logs Tab -->
+            <section id="logs-tab" class="tab-content">
+                <div class="toolbar">
+                    <select id="log-filter">
+                        <option value="">All Levels</option>
+                        <option value="DEBUG">Debug</option>
+                        <option value="INFO">Info</option>
+                        <option value="WARNING">Warning</option>
+                        <option value="ERROR">Error</option>
+                    </select>
+                    <button id="clear-logs-btn" class="btn">Clear</button>
+                </div>
+
+                <div id="logs-container" class="logs-container">
+                    <!-- Logs will be streamed here -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Task Modal -->
+        <div id="task-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Create New Task</h2>
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="task-name">Name</label>
+                        <input type="text" id="task-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Description</label>
+                        <textarea id="task-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-requirements">Requirements (one per line)</label>
+                        <textarea id="task-requirements" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-verification">Verification Commands (one per line)</label>
+                        <textarea id="task-verification" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-workdir">Working Directory</label>
+                        <input type="text" id="task-workdir" value=".">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-iterations">Max Iterations</label>
+                            <input type="number" id="task-iterations" value="10" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-timeout">Timeout (sec)</label>
+                            <input type="number" id="task-timeout" value="300" min="30">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Task Detail Modal -->
+        <div id="task-detail-modal" class="modal">
+            <div class="modal-content modal-large">
+                <span class="close">&times;</span>
+                <h2 id="detail-task-name">Task Details</h2>
+                <div id="task-detail-content">
+                    <!-- Task details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>

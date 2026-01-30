@@ -1,0 +1,24 @@
+# Sample VibeCoder Task Definition
+# This example shows how to define a task for VibeCoder to execute
+
+name: "Create Hello World Script"
+
+description: |
+  Create a simple Python script that prints "Hello, VibeCoder!"
+  and includes a function that can greet a specific name.
+
+requirements:
+  - Create a Python file named hello.py
+  - Include a function called greet(name) that returns "Hello, {name}!"
+  - The script should print "Hello, VibeCoder!" when run directly
+  - Include proper docstrings for the module and function
+  - Add a __main__ block to make the script executable
+
+verification_commands:
+  - "python hello.py"
+  - "python -c \"from hello import greet; assert greet('World') == 'Hello, World!'\""
+
+working_directory: "/tmp/vibecoder-test"
+
+max_iterations: 5
+timeout_per_iteration: 60

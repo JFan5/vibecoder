@@ -1,0 +1,35 @@
+[project]
+name = "vibecoder"
+version = "0.1.0"
+description = "Autonomous AI Coding Orchestration System"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.39.0",
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "sqlalchemy>=2.0.0",
+    "click>=8.1.0",
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0",
+    "websockets>=12.0",
+    "rich>=13.0.0",
+    "pydantic>=2.0.0",
+    "aiosqlite>=0.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[project.scripts]
+vibecoder = "vibecoder.main:cli"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
