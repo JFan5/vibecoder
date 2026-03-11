@@ -256,6 +256,10 @@ vibecoder/
 └── tests/                   # Test suite
 ```
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=JFan5/vibecoder&type=Date)](https://star-history.com/#JFan5/vibecoder&Date)
+
 ## License
 
 MIT
